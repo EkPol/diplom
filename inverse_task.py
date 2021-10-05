@@ -32,7 +32,6 @@ def EM(sigma, dt, time, N, seed):
         mu[i] = -5 * X_new[i] ** 3 + 2 * X_new[i]
     return X_new
 
-
 def Empirical_density(X, X_mesh_for_interp):
     N = len(X)
     num_density = 1 + int(math.log2(N))
@@ -62,15 +61,12 @@ def Empirical_density(X, X_mesh_for_interp):
     X_mesh_for_U[len(X_mesh) + 1] = X_mesh_for_interp[len(X_mesh_for_interp) - 1]
 
     Uo_new = spi.interp1d(X_mesh_for_U, U, kind='cubic', fill_value="extrapolate")(X_mesh_for_interp)
-    # plt.plot(X_mesh, Uo, 'o', X_mesh_for_interp, Uo_new, '-')
-    # plt.xlabel('X')
-    # plt.ylabel('Uo')
-    # plt.title('Эмпиричекая плотность распределения')
-    # plt.show()
+
     return Uo_new
 
-# Нахождение решения ур-ния Фоккера-Планка.Неявная схема. Прогонка.
+# Нахождение решения ур-ния Фоккера-Планка. Неявная схема. Прогонка.
 def Fokker_Plank_schem1_for_mu(mu, sigma, X, T):
+
     tau = T[1] - T[0]
     U = np.zeros((len(X), len(T)))
     Nx = len(X)
@@ -116,6 +112,7 @@ def Fokker_Plank_schem1_for_mu(mu, sigma, X, T):
         for i in range(Nx - 2, 1, -1):
             U[i - 1][n] = alpha[i - 1] * U[i][n] + beta[i - 1]
     Result = U.transpose()
+
     return Result
 
 # нахождение F'[mu]
@@ -215,7 +212,6 @@ def adjoint(mu, sigma, X, T, g):
 
     # интегрируем от 0 до Т найденное W(t,x)
     Int = np.zeros(Nx)
-
     for i in range(0, Nx):
         Int[i] = ((T[Nt - 1] - T[0]) / Nt) * ((Solve_adjoint[0][i] + Solve_adjoint[Nt - 1][i]) / 2)
         for j in range(1, Nt - 1):
@@ -248,7 +244,6 @@ time = np.arange(t_init, t_end + dt, dt)
 for j in range(0, n):
     seed = j + 2
     X.append(EM(sigma, dt, time, Nt, seed))
-    # plt.plot(time, X[j])
 
 X_for_T_fix = []
 for j in range(0, int(n)):
@@ -296,7 +291,7 @@ for k in range(0, Number_iter):
     U_fix_time = np.zeros(len(X_mesh))
 
     G = np.zeros(len(X_mesh))
-    # G_noise = np.zeros(len(X_mesh))
+    #G_noise = np.zeros(len(X_mesh))
 
     Delta_mu = np.zeros(len(X_mesh))
 
@@ -304,13 +299,6 @@ for k in range(0, Number_iter):
         U_fix_time[i] = U[T_fix][i]
         G[i] = U_fix_time[i] - U_obs[i]
         Delta_mu[i] = mu_exact[i] - mu[i]
-
-    # plt.plot(X_mesh, U_fix_time)
-    # plt.xlabel('X', fontsize=16)
-    # plt.ylabel('U', fontsize=16)
-    # plt.ylim(0, 3)
-    # plt.tick_params(axis='both', which='major', labelsize=12)
-    # plt.show()
 
     Num[k] = k
     J[k] = Norma_L2(G, X_mesh)
@@ -329,16 +317,13 @@ for k in range(0, Number_iter):
     for i in range(0, len(X_mesh)):
         mu[i] = mu_next_iteration[i]
 
-print(Eps_k[400])
-print(Eps_k[799])
-# ДАЛЕЕ ИДЕТ ЧАСТЬ КОДА ДЛЯ ОТРИСОВКИ ГРАФИКОВ
-
+# ГРАФИКИ
 mu_approx = np.zeros(len(X_mesh))
 for i in range(0, len(X_mesh)):
     mu_approx[i] = mu[i]
 
 L = [0, 100, 200, 300, 400, 500, 600, 700, 800]
-# L=[0,5,10,15,20,25,30,35,40,50,60,70,80]
+
 plt.plot(Num, J, label='Значение функционала J')
 plt.xlabel('Номер итерации', fontsize=16)
 plt.ylabel('J', fontsize=16)
